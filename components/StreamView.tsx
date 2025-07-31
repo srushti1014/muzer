@@ -42,40 +42,6 @@ export default function StreamView({
   const [queue, setQueue] = useState<Stream[]>([])
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
 
-  
-  const handleShare = async () => {
-    const url = `${window.location.hostname}/creator/${creatorId}`
-    navigator.clipboard.writeText(url).then(() => {
-      toast.success("Action completed successfully!", {
-        position: "top-right",
-        style: {
-          background: "#d1fae5",
-          color: "#065f46",
-        },
-      })
-
-
-    })
-    setShareUrl(url)
-
-    // if (navigator.share) {
-    //   try {
-    //     await navigator.share({
-    //       title: "Vote for the next song!",
-    //       text: "Join the stream and vote for what plays next!",
-    //       url: url,
-    //     })
-    //   } catch (err) {
-    //     console.log("Error sharing:", err)
-    //   }
-    // } else {
-    //   // Fallback to copying URL
-    //   await navigator.clipboard.writeText(url)
-    //   setCopied(true)
-    //   setTimeout(() => setCopied(false), 2000)
-    // }
-  }
-
   async function refreshStream() {
     try {
       const res = await axios.get(`/api/streams/?creatorId=${creatorId}`);
@@ -186,6 +152,38 @@ export default function StreamView({
     setplayNextLoader(false)
   }
 
+  const handleShare = async () => {
+    const url = `${window.location.hostname}/creator/${creatorId}`
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success("Action completed successfully!", {
+        position: "top-right",
+        style: {
+          background: "#d1fae5",
+          color: "#065f46",
+        },
+      })
+
+
+    })
+    setShareUrl(url)
+
+    // if (navigator.share) {
+    //   try {
+    //     await navigator.share({
+    //       title: "Vote for the next song!",
+    //       text: "Join the stream and vote for what plays next!",
+    //       url: url,
+    //     })
+    //   } catch (err) {
+    //     console.log("Error sharing:", err)
+    //   }
+    // } else {
+    //   // Fallback to copying URL
+    //   await navigator.clipboard.writeText(url)
+    //   setCopied(true)
+    //   setTimeout(() => setCopied(false), 2000)
+    // }
+  }
 
   const sortedQueue = [...queue].sort((a, b) => b.upvotes - a.upvotes)
 
