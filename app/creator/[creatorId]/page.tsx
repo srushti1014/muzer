@@ -1,12 +1,14 @@
 import StreamView from '@/components/StreamView'
-import React from 'react'
+import { FC } from 'react'
 
-const Creator = ({
-  params,
-}: {
-  params: { creatorId: string };
-}) => {
-  return <StreamView creatorId={params.creatorId} playVideo={false} />;
-};
+interface PageProps {
+  params: {
+    creatorId: string
+  }
+}
 
-export default Creator
+const CreatorPage: FC<PageProps> = ({ params }) => {
+  return <StreamView creatorId={params.creatorId} playVideo={false} />
+}
+
+export default CreatorPage
