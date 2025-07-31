@@ -12,12 +12,13 @@ const CreateStreamSchema = z.object({
   url: z.string(),
 });
 
-const MAX_QUEUE_LEN = 20;
+// const MAX_QUEUE_LEN = 20;
 
 export async function POST(req: NextRequest) {
   try {
     // const session = await getServerSession();
     // const user = session?.user;
+    // console.log("dataaaaaa:", await req.json())
 
     const data = CreateStreamSchema.parse(await req.json());
     const isYt = data.url.match(YT_REGEX);
@@ -64,22 +65,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-     const existingActiveStreams = await prisma.stream.count({
-        where: {
-          userId: data.creatorId
-        },
-      });
+    //  const existingActiveStreams = await prisma.stream.count({
+    //     where: {
+    //       userId: data.creatorId
+    //     },
+    //   });
 
-      if (existingActiveStreams >= MAX_QUEUE_LEN) {
-      return NextResponse.json(
-        {
-          message: "Queue is full",
-        },
-        {
-          status: 411,
-        },
-      );
-    }
+    //   if (existingActiveStreams >= MAX_QUEUE_LEN) {
+    //   return NextResponse.json(
+    //     {
+    //       message: "Queue is full",
+    //     },
+    //     {
+    //       status: 411,
+    //     },
+    //   );
+    // }
 
     const stream = await prisma.stream.create({
       data: {

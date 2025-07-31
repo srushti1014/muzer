@@ -64,12 +64,12 @@ export default function StreamView({
   }, [queue])
 
 
-  useEffect(() => {
-    refreshStream();
-   setInterval(() => {
-      refreshStream()
-    }, 10000)
-  }, [])
+  // useEffect(() => {
+  //   refreshStream();
+  //  setInterval(() => {
+  //     refreshStream()
+  //   }, 10000)
+  // }, [])
 
   useEffect(() => {
     if (!videoPlayerRef.current || !currentVideo) {
@@ -114,7 +114,7 @@ export default function StreamView({
     setIsSubmitting(true)
     try {
       await axios.post('/api/streams', {
-        creatorId: "c13da1ee-ef2c-4603-9a17-563f0555f281",
+        creatorId: "8d96adf1-28ea-4a88-8ef0-c47ab0518556",
         url: youtubeUrl,
       })
       setYoutubeUrl("")

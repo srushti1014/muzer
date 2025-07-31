@@ -1,6 +1,6 @@
 import StreamView from "@/components/StreamView"
 
-const creatorId ="c13da1ee-ef2c-4603-9a17-563f0555f281"
+const creatorId ="8d96adf1-28ea-4a88-8ef0-c47ab0518556"
 
 export default function Dashboard() {
   return (
