@@ -1,14 +1,9 @@
 import Appbar from "@/components/Appbar";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Users, Radio, Headphones } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-// import { authOptions } from "@/lib/auth-options";
 
 export default async function LandingPage() {
-  // const session = await getServerSession(authOptions);
  
 
   return (
@@ -29,10 +24,7 @@ export default async function LandingPage() {
             <div className="space-x-4">
               <Button className="bg-purple-600 text-white hover:bg-purple-700">
                 <Link
-                  href={{
-                    pathname: "/auth",
-                    query: { authType: "signUp" },
-                  }}
+                  href={`/dashboard`}
                 >
                   Get Started
                 </Link>
@@ -90,21 +82,11 @@ export default async function LandingPage() {
                   ref={mailRef}
                   type="email"
                 /> */}
-              <Link
-                href={{
-                  pathname: "/auth",
-                  query: {
-                    authType: "signUp",
-                  },
-                }}
-              >
-                <Button
-                  type="submit"
-                  className="bg-purple-600 text-white hover:bg-purple-700"
+                <p
+                  className="text-white hover:bg-purple-900 bg-purple-600/80 backdrop-blur-md p-2"
                 >
-                  Sign Up
-                </Button>
-              </Link>
+                  Hit The Best Beat
+                </p>
               {/* </form> */}
             </div>
           </div>

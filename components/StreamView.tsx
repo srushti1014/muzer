@@ -10,6 +10,7 @@ import axios from "axios"
 import Image from "next/image"
 // @ts-expect-error: YouTubePlayer might not have types
 import YouTubePlayer from 'youtube-player';
+import { toast } from "react-toastify"
 
 interface Stream {
   id: string
@@ -65,7 +66,7 @@ export default function StreamView({
 
   useEffect(() => {
     refreshStream();
-    const interval = setInterval(() => {
+   setInterval(() => {
       refreshStream()
     }, 10000)
   }, [])
@@ -152,7 +153,18 @@ export default function StreamView({
   }
 
   const handleShare = async () => {
-    const url = window.location.href
+    const url = `${window.location.hostname}/creator/${creatorId}`
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success("Action completed successfully!", {
+        position: "top-right",
+        style: {
+          background: "#d1fae5",
+          color: "#065f46",
+        },
+      })
+
+
+    })
     setShareUrl(url)
 
     if (navigator.share) {
@@ -320,7 +332,7 @@ export default function StreamView({
         </Card>
 
         {/* Queue */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <Card className="bg-gray-800/50 border-purple-400/30">
             <CardHeader>
               <CardTitle className="text-white flex items-center justify-between">
