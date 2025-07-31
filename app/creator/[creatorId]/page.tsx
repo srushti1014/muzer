@@ -1,17 +1,14 @@
 import StreamView from '@/components/StreamView'
-import { FC } from 'react'
-
 type Props = {
   params: {
     creatorId: string
   }
 }
 
-const Creator: FC<Props> = ({ params }) => {
+export default function Creator({ params }: Props) {
   return <StreamView creatorId={params.creatorId} playVideo={false} />
 }
 
-export default Creator
 // import StreamView from '@/components/StreamView'
 // import React from 'react'
 
