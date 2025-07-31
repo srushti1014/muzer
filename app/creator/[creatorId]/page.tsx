@@ -1,10 +1,24 @@
-import StreamView from '@/components/StreamView'
-import React from 'react'
+// import StreamView from '@/components/StreamView'
+// import React from 'react'
 
-const Creator = ({ params: { creatorId } }: { params: { creatorId: string } }) => {
-    return (
-        <StreamView creatorId={creatorId} playVideo={false} />
-    )
+// const Creator = ({ params: { creatorId } }: { params: { creatorId: string } }) => {
+//     return (
+//         <StreamView creatorId={creatorId} playVideo={false} />
+//     )
+// }
+
+// export default Creator
+
+import StreamView from '@/components/StreamView'
+
+interface PageProps {
+  params: {
+    creatorId: string
+  }
 }
 
-export default Creator
+export default function Creator({ params }: PageProps) {
+  return (
+    <StreamView creatorId={params.creatorId} playVideo={false} />
+  )
+}

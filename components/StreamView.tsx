@@ -64,12 +64,12 @@ export default function StreamView({
   }, [queue])
 
 
-  // useEffect(() => {
-  //   refreshStream();
-  //  setInterval(() => {
-  //     refreshStream()
-  //   }, 10000)
-  // }, [])
+  useEffect(() => {
+    refreshStream();
+   setInterval(() => {
+      refreshStream()
+    }, 10000)
+  }, [])
 
   useEffect(() => {
     if (!videoPlayerRef.current || !currentVideo) {
