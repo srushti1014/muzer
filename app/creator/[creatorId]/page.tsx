@@ -1,3 +1,5 @@
+"use client"
+
 import StreamView from '@/components/StreamView'
 import { FC } from 'react'
 
@@ -6,7 +8,7 @@ interface PageProps {
     creatorId: string
   }
 }
-//here cahnghe 
+
 const CreatorPage: FC<PageProps> = ({ params }) => {
   return <StreamView creatorId={params.creatorId} playVideo={false} />
 }
