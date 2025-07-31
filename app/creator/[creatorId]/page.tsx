@@ -6,7 +6,7 @@ type Props = {
 }
 
 export default function Creator({ params }: Props) {
-  return <StreamView creatorId={params.creatorId} playVideo={false} />
+  return <StreamView creatorId={params.creatorId as string} playVideo={false} />
 }
 
 // import StreamView from '@/components/StreamView'
