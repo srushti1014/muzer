@@ -1,30 +1,27 @@
 import prisma from "@/lib/db";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession();
-  const user = await prisma.user.findFirst({
-    where: {
-      email: session?.user?.email ?? "",
-    },
-  });
-
-  if (!user) {
+  const session = await auth();;
+   if (!session?.user.id) {
     return NextResponse.json(
       {
         message: "Unauthenticated",
       },
       {
         status: 403,
-      }
+      },
     );
   }
+  const user = session.user;
+  const spaceId = req.nextUrl.searchParams.get("spaceId");
   //tream with the highest number of upvotes that belongs to the user.
   const mostUpvotedStream = await prisma.stream.findFirst({
     where: {
       userId: user.id,
-      played: false
+      played: false,
+      spaceId: spaceId
     },
     orderBy: {
       upvotes: {
@@ -42,6 +39,7 @@ export async function GET(req: NextRequest) {
       update: {
         userId: user.id,
         streamId: mostUpvotedStream?.id,
+        spaceId: spaceId
       },
       create: {
         userId: user.id,

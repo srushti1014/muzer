@@ -20,7 +20,9 @@ model User {
   provider     Provider
   streams      Stream[] @relation("user")
   upvotes      Upvote[]
+  password     String?
   addedStreams Stream[] @relation("addedBy")
+  hostedSpaces Space[]  @relation("hostedBy")
 }
 
 model Stream {
@@ -41,12 +43,26 @@ model Stream {
   played        Boolean        @default(false)
   playedTs      DateTime?
   createAt      DateTime       @default(now())
+  spaceId       String?
+  space         Space?         @relation("spaceStreams", fields: [spaceId], references: [id], onDelete: Cascade)
 }
 
 model CurrentStream {
   userId   String  @id
   streamId String? @unique
   stream   Stream? @relation(fields: [streamId], references: [id])
+  spaceId  String? @unique
+  space    Space?  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+}
+
+model Space {
+  id            String         @id @default(uuid())
+  name          String
+  streams       Stream[]       @relation("spaceStreams")
+  hostId        String
+  host          User           @relation("hostedBy", fields: [hostId], references: [id])
+  isActive      Boolean        @default(true)
+  currentStream CurrentStream?
 }
 
 model Upvote {
@@ -66,4 +82,5 @@ enum StreamType {
 
 enum Provider {
   Google
+  Credentials
 }

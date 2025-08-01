@@ -28,10 +28,12 @@ interface Stream {
 
 export default function StreamView({
   creatorId,
-  playVideo = false
+  playVideo = false,
+  spaceId,
 }: {
   creatorId: string;
-  playVideo: boolean
+  playVideo: boolean;
+  spaceId: string
 }) {
   const [currentVideo, setCurrentVideo] = useState<Stream | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -40,11 +42,14 @@ export default function StreamView({
   const [playNextLoader, setplayNextLoader] = useState(false)
   const [previewVideo, setPreviewVideo] = useState<{ videoId: string; title: string; thumbnail: string } | null>(null)
   const [queue, setQueue] = useState<Stream[]>([])
+  const [spaceName, setSpaceName] = useState("");
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
 
   async function refreshStream() {
     try {
-      const res = await axios.get(`/api/streams/?creatorId=${creatorId}`);
+      const res = await axios.get(`/api/streams/?spaceId=${spaceId}`,{
+        withCredentials: true
+      });
       console.log("here: ", res)
       setQueue(res.data.stream || [])
       // setCurrentVideo(res.data.activeStream.stream)
@@ -54,6 +59,7 @@ export default function StreamView({
         }
         return res.data.activeStream.stream
       })
+      setSpaceName(res.data.spaceName)
     } catch (error) {
       console.error("Error fetching streams:", error)
     }
@@ -145,7 +151,9 @@ export default function StreamView({
 
   const playNext = async () => {
     setplayNextLoader(true)
-    const data = await axios.get(`/api/streams/next`)
+    const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`,{
+      withCredentials: true
+    })
     console.log("playnext apis response data: ", data);
     setCurrentVideo(data.data.stream)
     setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
@@ -162,8 +170,6 @@ export default function StreamView({
           color: "#065f46",
         },
       })
-
-
     })
     setShareUrl(url)
 

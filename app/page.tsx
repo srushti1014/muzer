@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Users, Radio, Headphones } from "lucide-react";
 
 export default async function LandingPage() {
- 
-
+  
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <Appbar />

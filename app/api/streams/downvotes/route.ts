@@ -1,31 +1,27 @@
 import prisma from "@/lib/db";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 
 const UpvoteSchema = z.object({
   streamId: z.string(),
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession();
+  const session = await auth();
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: session?.user?.email ?? "",
-    },
-  });
-
-  if (!user) {
+  if (!session?.user.id) {
     return NextResponse.json(
       {
         message: "Unauthenticated",
       },
       {
         status: 403,
-      }
+      },
     );
   }
+  const user = session.user;
+
   try {
     const data = UpvoteSchema.parse(await req.json());
     await prisma.upvote.delete({

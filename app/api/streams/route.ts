@@ -3,22 +3,36 @@ import { YT_REGEX } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import yts from "yt-search";
-import { getServerSession } from "next-auth";
-// import youtubesearchapi from "youtube-search-api";
-// import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
+
+// Stream	A single song.
+// Space	A queue.
+// CurrentStream	Tracks the one Stream that is currently playing in a Space.
 
 const CreateStreamSchema = z.object({
-  creatorId: z.string(),
+  creatorId: z.string(), //The host of the space (who owns the queue)
   url: z.string(),
+  spaceId: z.string(), // A single creator can have multiple spaces
 });
 
-// const MAX_QUEUE_LEN = 20;
+const MAX_QUEUE_LEN = 20;
 
 export async function POST(req: NextRequest) {
   try {
-    // const session = await getServerSession();
-    // const user = session?.user;
     // console.log("dataaaaaa:", await req.json())
+    const session = await auth();;
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          message: "Unauthenticated",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+    const user = session.user; //The currently logged-in user from session (fan or creator)
 
     const data = CreateStreamSchema.parse(await req.json());
     const isYt = data.url.match(YT_REGEX);
@@ -34,30 +48,9 @@ export async function POST(req: NextRequest) {
         }
       );
     }
-
-    const session = await getServerSession();
-    const user = await prisma.user.findFirst({
-      where: {
-        email: session?.user?.email ?? "",
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        {
-          message: "Unauthenticated",
-        },
-        {
-          status: 403,
-        }
-      );
-    }
-
     const res = await yts(videoId);
-
     const video = res.all?.[0];
     // console.log("result: ", res.all?.[0]);
-
     if (!video) {
       return NextResponse.json(
         { message: "Couldn't fetch video info" },
@@ -65,27 +58,99 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    //  const existingActiveStreams = await prisma.stream.count({
-    //     where: {
-    //       userId: data.creatorId
-    //     },
-    //   });
+    //check of user is not creator
+    if (user.id !== data.creatorId) {
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
 
-    //   if (existingActiveStreams >= MAX_QUEUE_LEN) {
-    //   return NextResponse.json(
-    //     {
-    //       message: "Queue is full",
-    //     },
-    //     {
-    //       status: 411,
-    //     },
-    //   );
-    // }
+      const userRecentStreams = await prisma.stream.count({
+        where: {
+          userId: data.creatorId,
+          addedBy: user.id,
+          createAt: {
+            gte: tenMinutesAgo,
+          },
+        },
+      });
+
+      //duplicate song
+      const duplicateSong = await prisma.stream.findFirst({
+        where: {
+          userId: data.creatorId,
+          extractedId: videoId,
+          createAt: {
+            gte: tenMinutesAgo,
+          },
+        },
+      });
+      if (duplicateSong) {
+        return NextResponse.json(
+          {
+            message: "This song was already added in the last 10 minutes",
+          },
+          {
+            status: 429,
+          }
+        );
+      }
+      // Rate limiting checks for non-creator users
+      const streamsLastTwoMinutes = await prisma.stream.count({
+        where: {
+          userId: data.creatorId,
+          addedBy: user.id,
+          createAt: {
+            gte: twoMinutesAgo,
+          },
+        },
+      });
+
+      if (streamsLastTwoMinutes >= 2) {
+        return NextResponse.json(
+          {
+            message:
+              "Rate limit exceeded: You can only add 2 songs per 2 minutes",
+          },
+          {
+            status: 429,
+          }
+        );
+      }
+
+      if (userRecentStreams >= 5) {
+        return NextResponse.json(
+          {
+            message:
+              "Rate limit exceeded: You can only add 5 songs per 10 minutes",
+          },
+          {
+            status: 429,
+          }
+        );
+      }
+    }
+
+    const existingActiveStreams = await prisma.stream.count({
+      where: {
+        spaceId: data.spaceId,
+        played: false,
+      },
+    });
+
+    if (existingActiveStreams >= MAX_QUEUE_LEN) {
+      return NextResponse.json(
+        {
+          message: "Queue is full",
+        },
+        {
+          status: 429,
+        }
+      );
+    }
 
     const stream = await prisma.stream.create({
       data: {
         userId: data.creatorId,
-        addedBy: user.id,
+        addedBy: user.id, //The currently logged-in user from session (fan or creator)
         url: data.url,
         extractedId: videoId,
         type: "Youtube",
@@ -96,6 +161,7 @@ export async function POST(req: NextRequest) {
         bigImg:
           video.thumbnail ??
           "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
+        spaceId: data.spaceId,
       },
     });
 
@@ -126,25 +192,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const creatorId = req.nextUrl.searchParams.get("creatorId");
-  if (!creatorId) {
-    return NextResponse.json(
-      {
-        message: "creator id not found",
-      },
-      {
-        status: 402,
-      }
-    );
-  }
-  const session = await getServerSession();
-  const user = await prisma.user.findFirst({
-    where: {
-      email: session?.user?.email ?? "",
-    },
-  });
-
-  if (!user) {
+  const spaceId = req.nextUrl.searchParams.get("spaceId");
+  const session = await auth();;
+  if (!session?.user.id) {
     return NextResponse.json(
       {
         message: "Unauthenticated",
@@ -154,28 +204,50 @@ export async function GET(req: NextRequest) {
       }
     );
   }
-  const [stream, activeStream] = await Promise.all([
-    await prisma.stream.findMany({
+
+  if (!spaceId) {
+    return NextResponse.json(
+      {
+        message: "Error",
+      },
+      {
+        status: 411,
+      }
+    );
+  }
+  const [space, activeStream] = await Promise.all([
+    await prisma.space.findUnique({
       where: {
-        userId: creatorId,
-        played: false,
+        id: spaceId,
       },
       include: {
-        _count: {
-          select: {
-            upvotes: true,
+        streams: {
+          include: {
+            _count: {
+              select: {
+                upvotes: true,
+              },
+            },
+            upvotes: {
+              where: {
+                userId: session?.user.id,
+              },
+            },
+          },
+          where: {
+            played: false,
           },
         },
-        upvotes: {
-          where: {
-            userId: user.id,
+        _count: {
+          select: {
+            streams: true,
           },
         },
       },
     }),
     prisma.currentStream.findFirst({
       where: {
-        userId: user.id,
+        spaceId: spaceId,
       },
       include: {
         stream: true,
@@ -183,12 +255,18 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  const hostId = space?.hostId;
+  const isCreator = session.user.id === hostId;
+
   return NextResponse.json({
-    stream: stream.map(({ _count, ...rest }) => ({
+    stream: space?.streams.map(({ _count, ...rest }) => ({
       ...rest,
       upvotes: _count.upvotes,
       haveUpvoted: rest.upvotes.length ? true : false,
     })),
     activeStream,
+    hostId,
+    isCreator,
+    spaceName: space?.name,
   });
 }
