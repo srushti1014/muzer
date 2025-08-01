@@ -161,7 +161,7 @@ export default function StreamView({
   }
 
   const handleShare = async () => {
-    const url = `${window.location.hostname}/creator/${creatorId}`
+    const url = `${window.location.hostname}/space/${spaceId}`
     navigator.clipboard.writeText(url).then(() => {
       toast.success("Action completed successfully!", {
         position: "top-right",
