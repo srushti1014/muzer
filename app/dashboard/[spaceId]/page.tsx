@@ -3,13 +3,11 @@ import StreamView from "@/components/StreamView"
 import axios from "axios";
 import { useEffect, useState } from "react"
 
-interface PageProps {
-  params: {
-    spaceId: string;
-  };
-}
-
-export default function Page({ params }: PageProps) {
+export default function Page({
+  params,
+}: {
+  params: { spaceId: string };
+}) {
 
   const [creatorId, setCreatorId] = useState<string | null>(null);
   const [loading1, setLoading1] = useState(true);
