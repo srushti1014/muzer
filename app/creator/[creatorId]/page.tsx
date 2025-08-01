@@ -1,3 +1,4 @@
+"use client"
 // import StreamView from '@/components/StreamView'
 // import React from 'react'
 

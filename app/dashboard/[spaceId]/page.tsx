@@ -1,3 +1,4 @@
+"use client"
 import StreamView from "@/components/StreamView"
 import axios from "axios";
 import { useEffect, useState } from "react"

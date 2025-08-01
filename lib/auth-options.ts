@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions, Session } from "next-auth";
+import { NextAuthOptions, Session } from "next-auth";
 import bcrypt from "bcryptjs";
 import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
