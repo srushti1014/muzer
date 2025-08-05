@@ -74,9 +74,9 @@ export default function StreamView({
 
   useEffect(() => {
     refreshStream();
-   setInterval(() => {
-      refreshStream()
-    }, 10000)
+  //  setInterval(() => {
+  //     refreshStream()
+  //   }, 10000)
   }, [])
 
   useEffect(() => {
@@ -121,6 +121,7 @@ export default function StreamView({
 
     setIsSubmitting(true)
     try {
+      // console.log("-------------========================+++++++++-", creatorId)
       await axios.post('/api/streams', {
         creatorId: creatorId,
         spaceId: spaceId,
