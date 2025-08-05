@@ -1,25 +1,16 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import AuthScreen from "@/components/auth/auth-screen";
-import { SignInFlow } from "@/types/auth-type";
+import InnerAuth from "@/components/InnerAuth";
+import { Suspense } from "react";
 
 export default function AuthPage() {
-  const session = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const authType = searchParams.get("authType") as SignInFlow | null;
-
-  if (session.status === "authenticated") {
-    router.push("/");
-    return null;
-  }
-
-  return <AuthScreen authType={authType ?? "signIn"} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InnerAuth />
+    </Suspense>
+  );
 }
+
 
 // "use client";
 
