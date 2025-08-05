@@ -1,20 +1,12 @@
 "use client"
-// import StreamView from '@/components/StreamView'
-// import React from 'react'
-
-// const Creator = ({ params: { creatorId } }: { params: { creatorId: string } }) => {
-//     return (
-//         <StreamView creatorId={creatorId} playVideo={false} />
-//     )
-// }
-
-// export default Creator
-
 import StreamView from '@/components/StreamView'
 import axios from 'axios';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function Creator({ params: { spaceId } }: { params: { spaceId: string } }) {
+export default function Creator() {
+  const params = useParams();
+  const spaceId = params?.spaceId as string;
   const [creatorId, setCreatorId] = useState<string>();
   const [loading1, setLoading1] = useState(true);
 
