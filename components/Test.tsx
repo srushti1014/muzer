@@ -45,6 +45,7 @@ export default function HomeView() {
         const fetchedSpaces: Space[] = response.data.spaces;
         setSpaces(fetchedSpaces);
       } catch (error) {
+        console.log(error);
         toast.error("Error fetching spaces");
       } finally {
         setIsLoading(false);

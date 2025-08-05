@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { json } from "zod";
 
 export const POST = async (req: NextRequest) => {
   try {

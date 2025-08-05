@@ -35,14 +35,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "Done"
     })
-  } catch (e) {
+  } catch (error: unknown) {
+    const err = error as Error;
     return NextResponse.json(
       {
-        message: "Error in upvoting",
+        success: false,
+        message: `An unexpected error occurred: ${err.message}`,
       },
-      {
-        status: 411,
-      }
+      { status: 500 }
     );
   }
 }

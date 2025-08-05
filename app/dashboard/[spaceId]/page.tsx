@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [creatorId, setCreatorId] = useState<string | null>(null);
   const [loading1, setLoading1] = useState(true);
 
+  console.log(loading1)
   useEffect(() => {
     async function fetchHostId() {
       try {

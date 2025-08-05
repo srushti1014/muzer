@@ -45,6 +45,8 @@ export default function StreamView({
   const [spaceName, setSpaceName] = useState("");
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
 
+  console.log(spaceName)
+
   async function refreshStream() {
     try {
       const res = await axios.get(`/api/streams/?spaceId=${spaceId}`,{
