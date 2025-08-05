@@ -1,46 +1,80 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Plus, Users, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
+import axios from "axios"
+import { toast } from "react-toastify"
+import SpaceCard from "./SpaceCard"
 
-// Sample data - replace with your actual data
-const sampleSpaces = [
-  { id: 1, name: "Team Standup", status: "Active" },
-  { id: 2, name: "Project Planning", status: "Inactive" },
-  { id: 3, name: "Design Review", status: "Active" },
-  { id: 4, name: "Client Meeting", status: "Active" },
-]
+interface Space {
+  endTime?: Date | null;
+  hostId: string;
+  id: string;
+  isActive: boolean;
+  name: string;
+  startTime: Date | null;
+}
 
 export default function SpacesDashboard() {
-  const [spaces, setSpaces] = useState(sampleSpaces)
+  const [spaces, setSpaces] = useState<Space[] | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [newSpaceName, setNewSpaceName] = useState("")
+  
+  const fetchSpaces = async () => {
+    const res = await axios.get(`/api/spaces`)
+    console.log("space data fetched : ", res)
+    const data: Space[] = res.data.spaces
+    setSpaces(data)
+  }
+  useEffect(() => {
+    fetchSpaces();
+  }, [])
 
-  // Set to empty array to see empty state
-  // const [spaces, setSpaces] = useState([])
 
-  const handleCreateSpace = () => {
-    if (newSpaceName.trim()) {
-      const newSpace = {
-        id: Date.now(),
-        name: newSpaceName.trim(),
-        status: "Active",
-      }
-      setSpaces([...spaces, newSpace])
-      setNewSpaceName("")
-      setIsCreateModalOpen(false)
-    }
+  const handleCreateSpace = async () => {
+    const res = await axios.post(`/api/spaces`, {
+      spaceName: newSpaceName,
+    })
+    const data = res.data;
+    setNewSpaceName("")
+    setIsCreateModalOpen(false)
+    toast.success(data.message)
+    fetchSpaces();
   }
 
-  const handleDeleteSpace = (id: number) => {
-    setSpaces(spaces.filter((space) => space.id !== id))
-  }
+  const handleDeleteSpace = async (spaceId: string) => {
+    const res = await axios.delete(`/api/spaces?spaceId=${spaceId}`);
+    const data = res.data;
+
+    setSpaces((prev) => {
+      const updatedSpaces: Space[] = prev
+        ? prev.filter((space) => space.id !== spaceId)
+        : [];
+      return updatedSpaces;
+    });
+
+    toast.success(data.message || "Space deleted");
+
+  };
+
+
+  // if (spaces && spaces.length > 0) {
+  //   return (
+  //     <>
+  //       {spaces.map((space) => (
+  //         <SpaceCard
+  //           key={space.id}
+  //           space={space}
+  //           handleDeleteSpace={handleDeleteSpace}
+  //         />
+  //       ))}
+  //     </>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -108,69 +142,22 @@ export default function SpacesDashboard() {
           </Dialog>
         </div>
 
-        {/* Spaces Grid or Empty State */}
-        {spaces.length === 0 ? (
-          <div className="flex justify-center">
-            <div className="max-w-md w-full">
-              <div className="border-2 border-dashed border-slate-600 rounded-xl p-12 text-center bg-slate-800/30 backdrop-blur-sm">
-                <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-slate-700 flex items-center justify-center">
-                  <Users className="h-8 w-8 text-slate-400" />
-                </div>
-                <h3 className="text-lg font-medium text-white mb-2">No spaces yet</h3>
-                <p className="text-slate-400">You have not created any spaces yet.</p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {spaces.map((space) => (
-              <Card
+        {/* Space Cards */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {spaces === null ? (
+            <p className="text-white">Loading...</p>
+          ) : spaces.length === 0 ? (
+            <p className="text-white">No spaces found.</p>
+          ) : (
+            spaces.map((space) => (
+              <SpaceCard
                 key={space.id}
-                className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-white group-hover:text-purple-300 transition-colors">
-                      {space.name}
-                    </h3>
-                    <Badge
-                      variant={space.status === "Active" ? "default" : "secondary"}
-                      className={
-                        space.status === "Active"
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-slate-600 hover:bg-slate-700 text-slate-200"
-                      }
-                    >
-                      {space.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-3">
-                  <div className="flex items-center text-sm text-slate-400">
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Team Space</span>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex gap-2 pt-3">
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                  >
-                    Join
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteSpace(space.id)}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        )}
+                space={space}
+                handleDeleteSpace={handleDeleteSpace}
+              />
+            ))
+          )}
+        </div>
       </main>
     </div>
   )

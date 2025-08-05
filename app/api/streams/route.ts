@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const data = CreateStreamSchema.parse(await req.json());
     const isYt = data.url.match(YT_REGEX);
     const videoId = data.url.match(YT_REGEX)?.[1];
-    console.log(videoId);
+    console.log("videoId :",videoId);
     if (!isYt || !videoId) {
       return NextResponse.json(
         {
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
     const res = await yts(videoId);
     const video = res.all?.[0];
-    // console.log("result: ", res.all?.[0]);
+    console.log("result: ", res.all?.[0]);
     if (!video) {
       return NextResponse.json(
         { message: "Couldn't fetch video info" },

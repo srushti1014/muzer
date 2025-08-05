@@ -121,6 +121,7 @@ export default function StreamView({
     try {
       await axios.post('/api/streams', {
         creatorId: creatorId,
+        spaceId: spaceId,
         url: youtubeUrl,
       })
       setYoutubeUrl("")
