@@ -74,9 +74,9 @@ export default function StreamView({
 
   useEffect(() => {
     refreshStream();
-  //  setInterval(() => {
-  //     refreshStream()
-  //   }, 10000)
+   setInterval(() => {
+      refreshStream()
+    }, 10000)
   }, [])
 
   useEffect(() => {
