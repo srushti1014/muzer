@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 
 export default function GetStarted() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
   const handleClick = () => {

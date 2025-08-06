@@ -45,14 +45,14 @@ export default function StreamView({
   const [spaceName, setSpaceName] = useState("");
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
 
-  console.log(spaceName)
+  // console.log(spaceName)
 
   async function refreshStream() {
     try {
-      const res = await axios.get(`/api/streams/?spaceId=${spaceId}`,{
+      const res = await axios.get(`/api/streams/?spaceId=${spaceId}`, {
         withCredentials: true
       });
-      console.log("here: ", res)
+      // console.log("here: ", res)
       setQueue(res.data.stream || [])
       // setCurrentVideo(res.data.activeStream.stream)
       setCurrentVideo(video => {
@@ -67,14 +67,14 @@ export default function StreamView({
     }
   }
 
-  useEffect(() => {
-    console.log("queue", queue)
-  }, [queue])
+  // useEffect(() => {
+  //   console.log("queue", queue)
+  // }, [queue])
 
 
   useEffect(() => {
     refreshStream();
-   setInterval(() => {
+    setInterval(() => {
       refreshStream()
     }, 10000)
   }, [])
@@ -93,8 +93,8 @@ export default function StreamView({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function eventHandler(event: any) {
-      console.log(event);
-      console.log(event.data);
+      // console.log(event);
+      // console.log(event.data);
       if (event.data === 0) {
         playNext();
       }
@@ -121,13 +121,19 @@ export default function StreamView({
 
     setIsSubmitting(true)
     try {
-      await axios.post('/api/streams', {
+      const res = await axios.post('/api/streams', {
         creatorId: creatorId,
         spaceId: spaceId,
         url: youtubeUrl,
       })
-      setYoutubeUrl("")
-      refreshStream()
+      console.log("res of submittsong: ", res.data)
+      // setCurrentVideo(res.data.stream)
+      // playNext()
+      if (!currentVideo) {
+        playNext()
+      }
+      setYoutubeUrl("");
+      refreshStream();
     } catch (error) {
       console.error("Error adding to queue:", error)
       setSubmitError("Failed to add video to queue")
@@ -154,10 +160,10 @@ export default function StreamView({
 
   const playNext = async () => {
     setplayNextLoader(true)
-    const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`,{
+    const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`, {
       withCredentials: true
     })
-    console.log("playnext apis response data: ", data);
+    // console.log("playnext apis response data: ", data);
     setCurrentVideo(data.data.stream)
     setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
     setplayNextLoader(false)

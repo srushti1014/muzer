@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
   }
   const user = session.user;
   const spaceId = req.nextUrl.searchParams.get("spaceId");
-  //tream with the highest number of upvotes that belongs to the user.
   const mostUpvotedStream = await prisma.stream.findFirst({
     where: {
       userId: user.id,

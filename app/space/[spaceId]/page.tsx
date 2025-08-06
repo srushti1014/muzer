@@ -14,7 +14,7 @@ export default function Creator() {
   const spaceId = params?.spaceId as string;
   const [creatorId, setCreatorId] = useState<string>();
   const [loading1, setLoading1] = useState(true);
-  console.log("spaceId-\\\\\\\\\====+++++++++-", spaceId)
+  console.log("spaceId", spaceId)
   console.log(loading1)
   useEffect(() => {
     async function fetchHostId() {
@@ -22,7 +22,7 @@ export default function Creator() {
         const res = await axios.get(`/api/spaces/?spaceId=${spaceId}`);
         console.log("res of space for hostId:", res)
         setCreatorId(res.data.hostId)
-        console.log("careatorId\\\\\\\+++++++++-", creatorId)
+        console.log("careatorId", creatorId)
 
       } catch (error) {
         console.error("Failed to fetch hostId", error);

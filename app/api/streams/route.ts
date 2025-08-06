@@ -172,6 +172,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "Added Stream",
       id: stream.id,
+      stream
     });
   } catch (e) {
     if (e instanceof ZodError) {
