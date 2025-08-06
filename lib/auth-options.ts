@@ -99,13 +99,13 @@ export const authOptions = {
       // },
       async authorize(credentials) {
         if (!credentials || !credentials.email || !credentials.password) {
-          console.log("📢 Missing credentials");
+          console.log("Missing credentials");
           return null;
         }
 
         const emailValidation = emailSchema.safeParse(credentials.email);
         if (!emailValidation.success) {
-          console.log("📢 Invalid email:", credentials.email);
+          console.log("Invalid email:", credentials.email);
           throw new Error("Invalid email");
         }
 
@@ -113,12 +113,12 @@ export const authOptions = {
           credentials.password
         );
         if (!passwordValidation.success) {
-          console.log("📢 Invalid password format");
+          console.log("Invalid password format");
           throw new Error(passwordValidation.error.issues[0].message);
         }
 
         try {
-          console.log("📢 Searching for user:", emailValidation.data);
+          console.log("Searching for user:", emailValidation.data);
           const user = await prisma.user.findUnique({
             where: {
               email: emailValidation.data,
@@ -126,7 +126,7 @@ export const authOptions = {
           });
 
           if (!user) {
-            console.log("📢 No user found, creating new one");
+            console.log("No user found, creating new one");
             const hashedPassword = await bcrypt.hash(
               passwordValidation.data,
               10
@@ -143,7 +143,7 @@ export const authOptions = {
           }
 
           if (!user.password) {
-            console.log("📢 User exists but has no password, updating...");
+            console.log("User exists but has no password, updating...");
             const hashedPassword = await bcrypt.hash(
               passwordValidation.data,
               10
@@ -159,21 +159,21 @@ export const authOptions = {
             return authUser;
           }
 
-          console.log("📢 Verifying password...");
+          console.log("Verifying password...");
           const passwordVerification = await bcrypt.compare(
             passwordValidation.data,
             user.password
           );
 
           if (!passwordVerification) {
-            console.log("📢 Password verification failed");
+            console.log("Password verification failed");
             throw new Error("Invalid password");
           }
 
-          console.log("✅ Credentials login successful");
+          console.log("Credentials login successful");
           return user;
         } catch (error) {
-          console.log("❌ Error in authorize:", error);
+          console.log("Error in authorize:", error);
           throw error;
         }
       },
@@ -248,13 +248,13 @@ export const authOptions = {
     // signIn callback (for Google login)
     async signIn({ account, profile }) {
       try {
-        console.log("📢 signIn callback hit");
+        console.log("signIn callback hit");
 
         if (account?.provider === "google") {
-          console.log("📢 Google login with email:", profile?.email);
+          console.log("Google login with email:", profile?.email);
 
           if (!profile?.email) {
-            console.error("❌ Google profile has no email");
+            console.error("Google profile has no email");
             return false;
           }
 
@@ -265,7 +265,7 @@ export const authOptions = {
           });
 
           if (!user) {
-            console.log("📢 Google user not found, creating...");
+            console.log("Google user not found, creating...");
             await prisma.user.create({
               data: {
                 email: profile.email,
@@ -273,13 +273,13 @@ export const authOptions = {
               },
             });
           } else {
-            console.log("✅ Google user already exists");
+            console.log("Google user already exists");
           }
         }
 
         return true;
       } catch (error) {
-        console.error("❌ Error in signIn callback:", error);
+        console.error("Error in signIn callback:", error);
         return false;
       }
     },
