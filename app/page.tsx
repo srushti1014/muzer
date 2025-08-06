@@ -2,6 +2,7 @@ import Appbar from "@/components/Appbar";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Users, Radio, Headphones } from "lucide-react";
+import GetStarted from "@/components/GetStarted";
 
 export default async function LandingPage() {
   
@@ -21,13 +22,7 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="space-x-4">
-              <Button className="bg-purple-600 text-white hover:bg-purple-700">
-                <Link
-                  href={`/dashboard`}
-                >
-                  Get Started
-                </Link>
-              </Button>
+              <GetStarted />
               <Button className="bg-white text-purple-400 hover:bg-white/90">
                 Learn More
               </Button>

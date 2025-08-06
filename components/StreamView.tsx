@@ -121,7 +121,6 @@ export default function StreamView({
 
     setIsSubmitting(true)
     try {
-      // console.log("-------------========================+++++++++-", creatorId)
       await axios.post('/api/streams', {
         creatorId: creatorId,
         spaceId: spaceId,
@@ -167,7 +166,7 @@ export default function StreamView({
   const handleShare = async () => {
     const url = `${window.location.hostname}/space/${spaceId}`
     navigator.clipboard.writeText(url).then(() => {
-      toast.success("Action completed successfully!", {
+      toast.success("Link copied successfully!", {
         position: "top-right",
         style: {
           background: "#d1fae5",

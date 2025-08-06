@@ -19,10 +19,13 @@ export default function Dashboard() {
   console.log(loading1)
   const router = useRouter();
 
+  console.log("spaceId", spaceId)
+
   useEffect(() => {
     async function fetchHostId() {
       try {
         const res = await axios.get(`/api/spaces/?spaceId=${spaceId}`);
+         console.log("careatorId", creatorId)
         setCreatorId(res.data.hostId)
 
       } catch (error) {
