@@ -246,7 +246,7 @@ export default function StreamView({
 
           <CardContent className="">
             {currentVideo ? (
-              <div className="p-5 group relative shadow-xl">
+              <div className="md:p-5 p-0 group relative shadow-xl">
                 {playVideo ? (
                   <div ref={videoPlayerRef} className="w-full"></div>
                   // <iframe width={"100%"} height={500} src={`https://www.youtube.com/embed/${currentVideo.extractedId}`} allow="autoplay"></iframe>
@@ -288,9 +288,8 @@ export default function StreamView({
         </Card>
         {playVideo && <Button
           disabled={playNextLoader}
-          size="sm"
           onClick={() => playNext()}
-          className="bg-blue-800 hover:bg-blue-900 text-lg w-64 h-14 px-3"
+          className="bg-blue-800 hover:bg-blue-900 md:w-44 md:h-10 md:text-lg px-2.5 py-1.5 sm:w-40 sm:h-20 sm:text-sm"
         >
           <Play className="w-3 h-3" />
           {playNextLoader ? "Loading..." : "play next"}
@@ -318,7 +317,7 @@ export default function StreamView({
                 )}
                 <Button
                   type="submit"
-                  className="bg-green-700 hover:bg-green-700"
+                  className="bg-green-700 hover:bg-green-700 md:w-40 md:h-9 md:text-[15px] px-2 py-1.5 sm:w-40 sm:h-20 sm:text-sm"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Adding..." : "Add to Queue"}
@@ -383,7 +382,6 @@ export default function StreamView({
 
                     <div className="flex items-center justify center">
                       <Button
-                        size="sm"
                         variant="ghost"
                         onClick={() => vote(item.id, item.haveUpvoted ? false : true)}
                         // className="h-5 w-5 p-0 text-green-400 hover:text-green-300 hover:bg-green-400/20"
