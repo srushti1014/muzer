@@ -71,6 +71,7 @@ export default function StreamView({
 
   useEffect(() => {
   console.log("current video: ", currentVideo)
+  console.log("playVideo: ", playVideo)
 }, [currentVideo]);
 
 
