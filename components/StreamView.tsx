@@ -69,6 +69,10 @@ export default function StreamView({
 //   }
 // }, [queue]);
 
+  useEffect(() => {
+  console.log("current video: ", currentVideo)
+}, [currentVideo]);
+
 
   useEffect(() => {
     refreshStream();
