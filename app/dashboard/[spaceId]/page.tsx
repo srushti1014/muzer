@@ -26,8 +26,9 @@ export default function Dashboard() {
     async function fetchHostId() {
       try {
         const res = await axios.get(`/api/spaces/?spaceId=${spaceId}`);
-         console.log("careatorId", creatorId)
+        console.log("res of space for hostId:", res)
         setCreatorId(res.data.hostId)
+        console.log("careatorId", res.data.hostId)
 
       } catch (error) {
         console.error("Failed to fetch hostId", error);

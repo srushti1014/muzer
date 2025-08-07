@@ -23,7 +23,7 @@ export default function Creator() {
         const res = await axios.get(`/api/spaces/?spaceId=${spaceId}`);
         console.log("res of space for hostId:", res)
         setCreatorId(res.data.hostId)
-        console.log("careatorId", creatorId)
+        console.log("careatorId", res.data.hostId)
 
       } catch (error) {
         console.error("Failed to fetch hostId", error);

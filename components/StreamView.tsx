@@ -69,6 +69,21 @@ export default function StreamView({
   //   }
   // }, [queue]);
 
+  // useEffect(() => {
+  //   const socket = new WebSocket('ws://localhost:3000')
+
+  //   socket.onmessage = (event) => {
+  //     const msg = JSON.parse(event.data)
+  //     if (msg.type === 'NEW_STREAM') {
+  //       console.log('New stream added:', msg.data)
+  //     }
+  //   }
+
+  //   return () => {
+  //     socket.close()
+  //   }
+  // }, [])
+
   useEffect(() => {
     console.log("current video: ", currentVideo)
     console.log("playVideo: ", playVideo)
@@ -239,26 +254,13 @@ export default function StreamView({
                   //   />
                   // </div>
                 ) : (
-                  // <div className="relative">
-                  //   <Image
-                  //     src={currentVideo.bigImg}
-                  //     alt="Video thumbnail"
-                  //     width={1280}
-                  //     height={720}
-                  //     className="w-full aspect-video rounded-lg object-cover transition-transform group-hover:scale-[1.02]"
-                  //   />
-                  //   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
-                  //   <div className="absolute inset-0 flex items-center justify-center">
-                  //     <button className="p-4 bg-red-600 rounded-full hover:bg-red-500 transition-all transform hover:scale-110 shadow-lg">
-                  //       <Play className="w-6 h-6 text-white" />
-                  //     </button>
-                  //   </div>
-                  // </div>
-                  <iframe
-                    src={`https://www.youtube.com/embed/${currentVideo.extractedId}`}
-                    allow="fullscreen"
-                    className="h-72 w-full rounded"
-                  />
+                    <Image
+                      src={currentVideo.bigImg}
+                      alt="Video thumbnail"
+                      width={1280}
+                      height={720}
+                      className="w-full aspect-video rounded-lg object-cover transition-transform group-hover:scale-[1.02]"
+                    />
                 )}
                 {currentVideo.title && (
                   <h3 className="mt-3 text-white font-medium line-clamp-2">

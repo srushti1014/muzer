@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import axios from "axios";
+import { broadcast } from "@/lib/ws/websocket";
 
 // Stream	A single song.
 // Space	A queue.
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = session.user; //The currently logged-in user from session (fan or creator)
+    const user = session.user; //The currently logged-in user from session fan or creator
 
     const data = CreateStreamSchema.parse(data1);
     const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
@@ -168,6 +169,11 @@ export async function POST(req: NextRequest) {
         spaceId: data.spaceId,
       },
     });
+
+    broadcast({
+      type: 'NEW_STREAM',
+      data: stream,
+    })
 
     return NextResponse.json({
       message: "Added Stream",
