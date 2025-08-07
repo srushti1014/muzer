@@ -1,4 +1,5 @@
 "use client"
+import Loader from '@/components/Loader';
 import StreamView from '@/components/StreamView'
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -34,7 +35,7 @@ export default function Creator() {
     fetchHostId()
   }, [spaceId])
 
-  if (status === "loading") return <div>Loading...</div>;
+  if (status === "loading") return <div><Loader /></div>;
 
   if (!session) {
     toast.info("Login first!", {

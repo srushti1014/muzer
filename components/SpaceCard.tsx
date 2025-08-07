@@ -20,6 +20,7 @@ import { Button } from "./ui/button";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import Link from "next/link";
 
 interface SpaceCardProps {
   space: {
@@ -89,15 +90,12 @@ const SpaceCard = ({ space, handleDeleteSpace }: SpaceCardProps) => {
         </CardContent>
 
         <CardFooter className="flex flex-col md:flex-row gap-2 justify-center items-center p-4 sm:p-6 ">
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-lg border-purple-600 bg-purple-700 text-white shadow-md transition-colors duration-300 hover:bg-purple-600 hover:shadow-purple-600/50 md:w-auto"
-            onClick={() => router.push(`/dashboard/${space.id}`)} 
+          <Link href={`/dashboard/${space.id}`}
+            className="flex items-center justify-between rounded-lg border-purple-600 bg-purple-700 text-white shadow-md transition-colors duration-300 hover:bg-purple-600 hover:shadow-purple-600/50 md:w-auto p-2"
           >
             <ArrowRight className="mr-2 h-5 w-5" />
             View Space
-          </Button>
+          </Link>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button

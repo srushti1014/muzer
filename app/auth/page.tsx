@@ -1,11 +1,12 @@
 "use client";
 
 import InnerAuth from "@/components/InnerAuth";
+import Loader from "@/components/Loader";
 import { Suspense } from "react";
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div><Loader/></div>}>
       <InnerAuth />
     </Suspense>
   );

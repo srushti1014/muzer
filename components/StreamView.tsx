@@ -45,16 +45,12 @@ export default function StreamView({
   const [spaceName, setSpaceName] = useState("");
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
 
-  // console.log(spaceName)
-
   async function refreshStream() {
     try {
       const res = await axios.get(`/api/streams/?spaceId=${spaceId}`, {
         withCredentials: true
       });
-      // console.log("here: ", res)
       setQueue(res.data.stream || [])
-      // setCurrentVideo(res.data.activeStream.stream)
       setCurrentVideo(video => {
         if (video?.id === res.data?.activeStream?.stream?.id) {
           return video;
@@ -66,11 +62,6 @@ export default function StreamView({
       console.error("Error fetching streams:", error)
     }
   }
-
-  // useEffect(() => {
-  //   console.log("queue", queue)
-  // }, [queue])
-
 
   useEffect(() => {
     refreshStream();
@@ -93,8 +84,6 @@ export default function StreamView({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function eventHandler(event: any) {
-      // console.log(event);
-      // console.log(event.data);
       if (event.data === 0) {
         playNext();
       }
@@ -126,7 +115,6 @@ export default function StreamView({
         spaceId: spaceId,
         url: youtubeUrl,
       })
-      console.log("res of submittsong: ", res.data)
       // setCurrentVideo(res.data.stream)
       // playNext()
       if (!currentVideo) {
@@ -163,7 +151,6 @@ export default function StreamView({
     const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`, {
       withCredentials: true
     })
-    // console.log("playnext apis response data: ", data);
     setCurrentVideo(data.data.stream)
     setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
     setplayNextLoader(false)
@@ -181,23 +168,6 @@ export default function StreamView({
       })
     })
     setShareUrl(url)
-
-    // if (navigator.share) {
-    //   try {
-    //     await navigator.share({
-    //       title: "Vote for the next song!",
-    //       text: "Join the stream and vote for what plays next!",
-    //       url: url,
-    //     })
-    //   } catch (err) {
-    //     console.log("Error sharing:", err)
-    //   }
-    // } else {
-    //   // Fallback to copying URL
-    //   await navigator.clipboard.writeText(url)
-    //   setCopied(true)
-    //   setTimeout(() => setCopied(false), 2000)
-    // }
   }
 
   const sortedQueue = [...queue].sort((a, b) => b.upvotes - a.upvotes)
@@ -207,7 +177,7 @@ export default function StreamView({
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-white">🎵 Stream Song Voting</h1>
+          <h1 className="text-4xl font-bold text-white">🎵 {spaceName}</h1>
           <p className="text-gray-300">Vote for the next song or submit your own!</p>
 
           {/* Share Button */}

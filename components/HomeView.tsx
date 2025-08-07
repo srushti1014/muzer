@@ -23,7 +23,8 @@ export default function SpacesDashboard() {
   const [spaces, setSpaces] = useState<Space[] | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [newSpaceName, setNewSpaceName] = useState("")
-  
+  const [isCreating, setIsCreating] = useState(false)
+
   const fetchSpaces = async () => {
     const res = await axios.get(`/api/spaces`)
     console.log("space data fetched : ", res)
@@ -36,14 +37,21 @@ export default function SpacesDashboard() {
 
 
   const handleCreateSpace = async () => {
-    const res = await axios.post(`/api/spaces`, {
-      spaceName: newSpaceName,
-    })
-    const data = res.data;
-    setNewSpaceName("")
-    setIsCreateModalOpen(false)
-    toast.success(data.message)
-    fetchSpaces();
+    try {
+      setIsCreating(true)
+      const res = await axios.post(`/api/spaces`, {
+        spaceName: newSpaceName,
+      })
+      const data = res.data;
+      setNewSpaceName("")
+      setIsCreateModalOpen(false)
+      toast.success(data.message)
+      fetchSpaces();
+    } catch (error) {
+      console.error("Error", error)
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handleDeleteSpace = async (spaceId: string) => {
@@ -95,6 +103,7 @@ export default function SpacesDashboard() {
             <DialogTrigger asChild>
               <Button
                 size="lg"
+                disabled={isCreating}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
               >
                 <Plus className="mr-2 h-5 w-5" />
@@ -126,13 +135,13 @@ export default function SpacesDashboard() {
                     setIsCreateModalOpen(false)
                     setNewSpaceName("")
                   }}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                  className="border-slate-600 text-black hover:bg-slate-700 hover:text-white"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleCreateSpace}
-                  disabled={!newSpaceName.trim()}
+                  disabled={isCreating}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   Create Space
@@ -143,11 +152,11 @@ export default function SpacesDashboard() {
         </div>
 
         {/* Space Cards */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="relative mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {spaces === null ? (
-            <p className="text-white">Loading...</p>
+            <p className="text-white absolute top-1/2 left-1/2 -translate-x-1/2">Loading...</p>
           ) : spaces.length === 0 ? (
-            <p className="text-white">No spaces found.</p>
+            <p className="text-white absolute top-1/2 left-1/2 -translate-x-1/2">No spaces found.</p>
           ) : (
             spaces.map((space) => (
               <SpaceCard
