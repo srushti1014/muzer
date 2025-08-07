@@ -63,16 +63,16 @@ export default function StreamView({
     }
   }
 
-//   useEffect(() => {
-//   if (queue.length === 1 && !currentVideo) {
-//     playNext(); // auto-play first song
-//   }
-// }, [queue]);
+  //   useEffect(() => {
+  //   if (queue.length === 1 && !currentVideo) {
+  //     playNext(); // auto-play first song
+  //   }
+  // }, [queue]);
 
   useEffect(() => {
-  console.log("current video: ", currentVideo)
-  console.log("playVideo: ", playVideo)
-}, [currentVideo, playVideo]);
+    console.log("current video: ", currentVideo)
+    console.log("playVideo: ", playVideo)
+  }, [currentVideo, playVideo]);
 
 
   useEffect(() => {
@@ -239,21 +239,26 @@ export default function StreamView({
                   //   />
                   // </div>
                 ) : (
-                  <div className="relative">
-                    <Image
-                      src={currentVideo.bigImg}
-                      alt="Video thumbnail"
-                      width={1280}
-                      height={720}
-                      className="w-full aspect-video rounded-lg object-cover transition-transform group-hover:scale-[1.02]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <button className="p-4 bg-red-600 rounded-full hover:bg-red-500 transition-all transform hover:scale-110 shadow-lg">
-                        <Play className="w-6 h-6 text-white" />
-                      </button>
-                    </div>
-                  </div>
+                  // <div className="relative">
+                  //   <Image
+                  //     src={currentVideo.bigImg}
+                  //     alt="Video thumbnail"
+                  //     width={1280}
+                  //     height={720}
+                  //     className="w-full aspect-video rounded-lg object-cover transition-transform group-hover:scale-[1.02]"
+                  //   />
+                  //   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
+                  //   <div className="absolute inset-0 flex items-center justify-center">
+                  //     <button className="p-4 bg-red-600 rounded-full hover:bg-red-500 transition-all transform hover:scale-110 shadow-lg">
+                  //       <Play className="w-6 h-6 text-white" />
+                  //     </button>
+                  //   </div>
+                  // </div>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${currentVideo.extractedId}`}
+                    allow="fullscreen"
+                    className="h-72 w-full rounded"
+                  />
                 )}
                 {currentVideo.title && (
                   <h3 className="mt-3 text-white font-medium line-clamp-2">

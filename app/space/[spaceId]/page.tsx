@@ -45,6 +45,6 @@ export default function Creator() {
     return null;
   }
   return (
-    <StreamView creatorId={creatorId as string} playVideo={true} spaceId={spaceId} />
+    <StreamView creatorId={creatorId as string} playVideo={false} spaceId={spaceId} />
   )
 }
