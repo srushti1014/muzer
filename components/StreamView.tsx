@@ -63,11 +63,11 @@ export default function StreamView({
     }
   }
 
-  useEffect(() => {
-  if (queue.length === 1 && !currentVideo) {
-    playNext(); // auto-play first song
-  }
-}, [queue]);
+//   useEffect(() => {
+//   if (queue.length === 1 && !currentVideo) {
+//     playNext(); // auto-play first song
+//   }
+// }, [queue]);
 
 
   useEffect(() => {
