@@ -117,9 +117,9 @@ export default function StreamView({
       })
       // setCurrentVideo(res.data.stream)
       // playNext()
-      if (!currentVideo) {
-        playNext()
-      }
+      // if (!currentVideo) {
+      //   playNext()
+      // }
       setYoutubeUrl("");
       refreshStream();
     } catch (error) {
