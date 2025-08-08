@@ -19,6 +19,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useSession } from "next-auth/react"
+import { useSocket } from "@/context/socket-con"
 
 interface Stream {
   id: string
@@ -55,6 +57,34 @@ export default function StreamView({
   const [isCreator, setIsCreator] = useState(false)
   const [isEmptyQueueDialogOpen, setIsEmptyQueueDialogOpen] = useState(false);
 
+  const { socket, sendMessage } = useSocket();
+  const user = useSession().data?.user;
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onmessage = (event) => {
+      try {
+        console.log("Raw WebSocket message:", event.data, typeof event.data);
+        console.log("Raw WebSocket message:", event.data);
+
+        const { type, data } = JSON.parse(event.data);
+
+        if (type === "new-stream" && data.spaceId === spaceId) {
+          console.log("Calling refreshStream...");
+          refreshStream();
+        }
+      } catch (error) {
+        console.warn("Non-JSON message received:", event.data);
+      }
+    };
+
+    return () => {
+      socket.onmessage = null;
+    };
+  }, [socket, spaceId]);
+
+
   async function refreshStream() {
     try {
       const res = await axios.get(`/api/streams/?spaceId=${spaceId}`, {
@@ -74,38 +104,8 @@ export default function StreamView({
     }
   }
 
-  //   useEffect(() => {
-  //   if (queue.length === 1 && !currentVideo) {
-  //     playNext(); // auto-play first song
-  //   }
-  // }, [queue]);
-
-  // useEffect(() => {
-  //   const socket = new WebSocket('ws://localhost:3000')
-
-  //   socket.onmessage = (event) => {
-  //     const msg = JSON.parse(event.data)
-  //     if (msg.type === 'NEW_STREAM') {
-  //       console.log('New stream added:', msg.data)
-  //     }
-  //   }
-
-  //   return () => {
-  //     socket.close()
-  //   }
-  // }, [])
-
-  useEffect(() => {
-    console.log("current video: ", currentVideo)
-    console.log("playVideo: ", playVideo)
-  }, [currentVideo, playVideo]);
-
-
   useEffect(() => {
     refreshStream();
-    setInterval(() => {
-      refreshStream()
-    }, 10000)
   }, [])
 
   useEffect(() => {
@@ -153,11 +153,10 @@ export default function StreamView({
         spaceId: spaceId,
         url: youtubeUrl,
       })
-      // setCurrentVideo(res.data.stream)
-      // playNext()
-      // if (!currentVideo) {
-      //   playNext()
-      // }
+      socket?.send(JSON.stringify({
+        type: "new-stream",
+        data: { spaceId }
+      }));
       setYoutubeUrl("");
       refreshStream();
     } catch (error) {
@@ -179,19 +178,37 @@ export default function StreamView({
       ).sort((a, b) => (b.upvotes) - (a.upvotes)))
 
       await axios.post(`/api/streams/${isUpvote ? "upvotes" : "downvotes"}`, { streamId });
+      socket?.send(JSON.stringify({
+        type: "vote",
+        data: { streamId, spaceId }
+      }));
     } catch (error) {
       console.error("Error voting:", error)
     }
   }
 
   const playNext = async () => {
-    setplayNextLoader(true)
-    const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`, {
-      withCredentials: true
-    })
-    setCurrentVideo(data.data.stream)
-    setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
-    setplayNextLoader(false)
+    console.log("playNext triggered");
+
+    if (sortedQueue === null) {
+      toast.dark("queue is empty");
+      return;
+    }
+
+    try {
+      setplayNextLoader(true);
+
+      const data = await axios.get(`/api/streams/next?spaceId=${spaceId}`, {
+        withCredentials: true
+      })
+      setCurrentVideo(data.data.stream)
+      setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
+    } catch (error) {
+      console.error("Error in playNext:", error);
+      toast.error("Failed to load next stream");
+    } finally {
+      setplayNextLoader(false);
+    }
   }
 
   const handleShare = async () => {
@@ -319,7 +336,7 @@ export default function StreamView({
             )}
           </CardContent>
         </Card>
-        {playVideo && <Button
+        {playVideo && queue.length > 0 && <Button
           disabled={playNextLoader}
           onClick={() => playNext()}
           className="bg-blue-800 hover:bg-blue-900 md:w-44 md:h-10 md:text-lg px-2.5 py-1.5 sm:w-40 sm:h-20 sm:text-sm"
@@ -383,17 +400,17 @@ export default function StreamView({
           <Card className="bg-gray-800/50 border-purple-400/30">
             <CardHeader>
               <CardTitle className="text-white flex items-center justify-between">
-                <span>🎵 Song Queue</span>
-                <div className="flex justify-center gap-2">
+                <span className="flex-1">🎵 Song Queue</span>
+                <div className="flex flex-wrap sm:justify-center justify-end gap-1">
                   <Badge variant="secondary" className="bg-purple-600">
                     {sortedQueue.length} songs
                   </Badge>
                   {isCreator && (sortedQueue !== null) && (
                     <button
                       onClick={() => setIsEmptyQueueDialogOpen(true)}
-                      className="bg-gray-700 hover:bg-red-400 hover:text-black text-white transition-colors flex items-center justify-center text-sm p-1.5 rounded-sm"
+                      className="bg-gray-700 hover:bg-red-400 hover:text-black text-white transition-colors flex items-center justify-center sm:text-sm p-1.5 rounded-sm text-xs"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" /> Empty Queue
+                      <Trash2 className="mr-2 h-4 w-4" />Empty Queue
                     </button>
                   )}
                 </div>

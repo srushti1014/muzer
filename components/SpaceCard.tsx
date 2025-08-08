@@ -65,9 +65,8 @@ const SpaceCard = ({ space, handleDeleteSpace }: SpaceCardProps) => {
             <Image
               src={audience}
               alt="Space image"
-              layout="fill"
-              objectFit="cover"
-              className="rounded-t-2xl"
+              fill
+              className="rounded-t-2xl object-cover"
             />
             <motion.div
               className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent"
