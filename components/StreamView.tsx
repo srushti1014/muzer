@@ -5,12 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChevronUp, ChevronDown, Play, Plus, Share2, Check } from "lucide-react"
+import { ChevronUp, ChevronDown, Play, Plus, Share2, Check, X, Trash2 } from "lucide-react"
 import axios from "axios"
 import Image from "next/image"
 // @ts-expect-error: YouTubePlayer might not have types
 import YouTubePlayer from 'youtube-player';
 import { toast } from "react-toastify"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Stream {
   id: string
@@ -44,6 +52,8 @@ export default function StreamView({
   const [queue, setQueue] = useState<Stream[]>([])
   const [spaceName, setSpaceName] = useState("");
   const videoPlayerRef = useRef<HTMLDivElement | null>(null)
+  const [isCreator, setIsCreator] = useState(false)
+  const [isEmptyQueueDialogOpen, setIsEmptyQueueDialogOpen] = useState(false);
 
   async function refreshStream() {
     try {
@@ -58,6 +68,7 @@ export default function StreamView({
         return res.data.activeStream.stream
       })
       setSpaceName(res.data.spaceName)
+      setIsCreator(res.data.isCreator)
     } catch (error) {
       console.error("Error fetching streams:", error)
     }
@@ -194,10 +205,43 @@ export default function StreamView({
         },
       })
     })
+    setCopied(true)
     setShareUrl(url)
   }
 
   const sortedQueue = [...queue].sort((a, b) => b.upvotes - a.upvotes)
+
+  const removeSong = async (streamId: string) => {
+    try {
+      const res = await axios.delete(`/api/streams/remove?streamId=${streamId}&spaceId=${spaceId}`);
+      if (res) {
+        toast.success("Song removed successfully");
+        refreshStream();
+      } else {
+        toast.error("Failed to remove song");
+      }
+    } catch (error) {
+      toast.error("An error occurred while removing the song");
+    }
+  }
+
+  const emptyQueue = async () => {
+    try {
+      const res = await axios.post("/api/streams/empty-queue",
+        { spaceId: spaceId }
+      );
+      if (res) {
+        toast.success(res.data.message);
+        refreshStream();
+        setIsEmptyQueueDialogOpen(false);
+        setCurrentVideo(null)
+      }
+    } catch (error) {
+      console.error("Error emptying queue:", error);
+      toast.error("An error occurred while emptying the queue");
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 p-4">
@@ -245,7 +289,7 @@ export default function StreamView({
             {currentVideo ? (
               <div className="md:p-5 p-0 group relative shadow-xl">
                 {playVideo ? (
-                  <div ref={videoPlayerRef} className="w-full"></div>
+                  <div ref={videoPlayerRef} className="w-full aspect-video"></div>
                   // <iframe width={"100%"} height={500} src={`https://www.youtube.com/embed/${currentVideo.extractedId}`} allow="autoplay"></iframe>
                   // <div className="rounded-lg overflow-hidden ">
                   //   <YouTubeEmbed
@@ -254,13 +298,13 @@ export default function StreamView({
                   //   />
                   // </div>
                 ) : (
-                    <Image
-                      src={currentVideo.bigImg}
-                      alt="Video thumbnail"
-                      width={1280}
-                      height={720}
-                      className="w-full aspect-video rounded-lg object-cover transition-transform group-hover:scale-[1.02]"
-                    />
+                  <Image
+                    src={currentVideo.bigImg}
+                    alt="Video thumbnail"
+                    width={1200}
+                    height={700}
+                    className="aspect-video rounded-lg object-cover transition-transform"
+                  />
                 )}
                 {currentVideo.title && (
                   <h3 className="mt-3 text-white font-medium line-clamp-2">
@@ -340,9 +384,19 @@ export default function StreamView({
             <CardHeader>
               <CardTitle className="text-white flex items-center justify-between">
                 <span>🎵 Song Queue</span>
-                <Badge variant="secondary" className="bg-purple-600">
-                  {sortedQueue.length} songs
-                </Badge>
+                <div className="flex justify-center gap-2">
+                  <Badge variant="secondary" className="bg-purple-600">
+                    {sortedQueue.length} songs
+                  </Badge>
+                  {isCreator && (sortedQueue !== null) && (
+                    <button
+                      onClick={() => setIsEmptyQueueDialogOpen(true)}
+                      className="bg-gray-700 hover:bg-red-400 hover:text-black text-white transition-colors flex items-center justify-center text-sm p-1.5 rounded-sm"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Empty Queue
+                    </button>
+                  )}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -365,7 +419,6 @@ export default function StreamView({
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-medium truncate">{item.title}</p>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        {/* Additional info can go here */}
                       </div>
                     </div>
 
@@ -384,6 +437,14 @@ export default function StreamView({
                       </Button>
 
                       <span className="text-white font-bold text-sm w-5 text-center">{item.upvotes}</span>
+                      {isCreator && (
+                        <button
+                          onClick={() => removeSong(item.id)}
+                          className="bg-gray-700 hover:bg-gray-600 text-white transition-colors ml-3 flex justify-center items-center rounded-2xl w-7 h-7"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -429,6 +490,34 @@ export default function StreamView({
           </Card>
         </div>
       </div>
+      <Dialog
+        open={isEmptyQueueDialogOpen}
+        onOpenChange={setIsEmptyQueueDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Empty Queue</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to empty the queue? This will remove all
+              songs from the queue. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEmptyQueueDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={emptyQueue}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Empty Queue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
