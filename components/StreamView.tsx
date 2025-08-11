@@ -69,7 +69,7 @@ export default function StreamView({
         const { type, data } = JSON.parse(event.data);
         if (data.spaceId !== spaceId) return; 
 
-        if (type === "new-stream" || type === "remove-stream" || type === "vote") {
+        if (type === "new-stream" || type === "remove-stream" || type === "vote" || type === "empty-queue" || type === "play-next") {
           console.log("calling.........")
           refreshStream();
         }
@@ -187,7 +187,7 @@ export default function StreamView({
   const playNext = async () => {
     console.log("playNext triggered");
 
-    if (sortedQueue === null) {
+    if (sortedQueue.length === 0 || !sortedQueue) {
       toast.dark("queue is empty");
       return;
     }
@@ -199,6 +199,10 @@ export default function StreamView({
         withCredentials: true
       })
       setCurrentVideo(data.data.stream)
+      socket?.send(JSON.stringify({
+        type: "play-next",
+        data: { spaceId }
+      }));
       setQueue(q => q.filter(item => item.id !== data.data?.stream?.id))
     } catch (error) {
       console.error("Error in playNext:", error);
@@ -230,7 +234,7 @@ export default function StreamView({
       const res = await axios.delete(`/api/streams/remove?streamId=${streamId}&spaceId=${spaceId}`);
       if (res) {
         toast.success("Song removed successfully");
-        refreshStream();
+        // refreshStream();
       } else {
         toast.error("Failed to remove song");
       }
@@ -250,7 +254,11 @@ export default function StreamView({
       );
       if (res) {
         toast.success(res.data.message);
-        refreshStream();
+        socket?.send(JSON.stringify({
+        type: "empty-queue",
+        data: { spaceId }
+        }));
+        // refreshStream();
         setIsEmptyQueueDialogOpen(false);
         setCurrentVideo(null)
       }
