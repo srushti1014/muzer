@@ -9,9 +9,9 @@ import yts from 'yt-search';
 // CurrentStream	Tracks the one Stream that is currently playing in a Space.
 
 const CreateStreamSchema = z.object({
-  creatorId: z.string(), //The host of the space (who owns the queue)
+  creatorId: z.string(), 
   url: z.string(),
-  spaceId: z.string(), // A single creator can have multiple spaces
+  spaceId: z.string(), 
 });
 
 const MAX_QUEUE_LEN = 20;
