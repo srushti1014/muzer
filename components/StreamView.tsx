@@ -60,30 +60,27 @@ export default function StreamView({
   const { socket, sendMessage } = useSocket();
   const user = useSession().data?.user;
 
+
   useEffect(() => {
     if (!socket) return;
-
-    socket.onmessage = (event) => {
+    
+    const handler = (event: MessageEvent) => {
       try {
-        console.log("Raw WebSocket message:", event.data, typeof event.data);
-        console.log("Raw WebSocket message:", event.data);
-
         const { type, data } = JSON.parse(event.data);
+        if (data.spaceId !== spaceId) return; 
 
-        if (type === "new-stream" && data.spaceId === spaceId) {
-          console.log("Calling refreshStream...");
+        if (type === "new-stream" || type === "remove-stream" || type === "vote") {
+          console.log("calling.........")
           refreshStream();
         }
-      } catch (error) {
-        console.warn("Non-JSON message received:", event.data);
+      } catch {
+        console.warn("Non-JSON message:", event.data);
       }
     };
 
-    return () => {
-      socket.onmessage = null;
-    };
+    socket.addEventListener("message", handler);
+    return () => socket.removeEventListener("message", handler);
   }, [socket, spaceId]);
-
 
   async function refreshStream() {
     try {
@@ -158,7 +155,7 @@ export default function StreamView({
         data: { spaceId }
       }));
       setYoutubeUrl("");
-      refreshStream();
+      // refreshStream();
     } catch (error) {
       console.error("Error adding to queue:", error)
       setSubmitError("Failed to add video to queue")
@@ -237,6 +234,10 @@ export default function StreamView({
       } else {
         toast.error("Failed to remove song");
       }
+      socket?.send(JSON.stringify({
+        type: "remove-stream",
+        data: { spaceId }
+      }));
     } catch (error) {
       toast.error("An error occurred while removing the song");
     }

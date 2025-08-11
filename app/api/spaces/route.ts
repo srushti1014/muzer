@@ -86,9 +86,10 @@ export async function GET(req: NextRequest) {
     // If no spaceId is provided, retrieve all spaces
     const spaces = await prisma.space.findMany({
       where: {
-        hostId: session.user.id,
+        hostId: session?.user.id,
       },
     });
+    console.log("==============================", session?.user.id)
     return NextResponse.json(
       { success: true, message: "Spaces retrieved successfully", spaces },
       { status: 200 }

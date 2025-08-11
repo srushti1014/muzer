@@ -1,108 +1,90 @@
-"use client"
+"use client";
 import Loader from "@/components/Loader";
-import StreamView from "@/components/StreamView"
+import StreamView from "@/components/StreamView";
 import { useSocket } from "@/context/socket-con";
 import axios from "axios";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function Dashboard() {
-
-
   const { socket, user, loading, setUser, connectionError } = useSocket();
-
   const params = useParams();
-  const spaceId = params?.spaceId as string;
-  const [creatorId, setCreatorId] = useState<string | null>(null);
-  const [loading1, setLoading1] = useState(true);
   const router = useRouter();
+  const spaceId = params?.spaceId as string;
 
+  // Redirect if not logged in
   useEffect(() => {
-    async function fetchHostId() {
-      try {
-        const res = await axios.get(`/api/spaces/?spaceId=${spaceId}`);
-        console.log("res of space for hostId:", res)
-        setCreatorId(res.data.hostId)
-        console.log("careatorId", res.data.hostId)
-
-      } catch (error) {
-        console.error("Failed to fetch hostId", error);
-      } finally {
-        setLoading1(false);
-      }
+    if (!loading && !user) {
+      toast.info("Login first!", { position: "top-right" });
+      router.push("/");
     }
-    fetchHostId();
-  }, [spaceId])
+  }, [user, loading, router]);
 
+  // Redirect if not the creator
   useEffect(() => {
+    if (user && user.id && user.id !== undefined) {
+      axios.get(`/api/spaces/?spaceId=${spaceId}`).then((res) => {
+        if (res.data.hostId !== user.id) {
+          toast.warn("You are not the creator of this space", {
+            position: "top-right",
+          });
+          router.push("/");
+        }
+      });
+    }
+  }, [user, spaceId, router]);
+
+  // Join room as creator
+  // Join room as creator
+  useEffect(() => {
+    if (!socket || !user || !spaceId) return;
+
     const joinRoom = async () => {
-      if (user && socket && creatorId) {
-        // const token = user.token || jwt.sign(
-        //   {
-        //     creatorId: creatorId,
-        //     userId: user?.id
-        //   },
-        //   process.env.NEXT_PUBLIC_SECRET || "",
-        //   {
-        //     expiresIn: "24h",
-        //   }
-        // )
+      if (socket.readyState !== WebSocket.OPEN) {
+        socket.addEventListener("open", joinRoom, { once: true });
+        return;
+      }
+
+      try {
         const res = await axios.post("/api/token", {
           userId: user.id,
-          creatorId,
+          creatorId: user.id,
         });
 
         const { token } = res.data;
-        socket?.send(
+        socket.send(
           JSON.stringify({
             type: "join-room",
-            data: {
-              token,
-              spaceId
-            },
+            data: { token, spaceId },
           })
         );
-        if (!user.token) {
-          setUser({ ...user, token });
-        }
-      }
-    }
-    joinRoom()
-  }, [user, spaceId, creatorId, socket])
 
-  useEffect(() => {
-    if (!loading && !user) {
-      toast.info("Login first!", {
-        position: "top-right",
-      });
-      router.push("/");
-    }
-  }, [user, loading]);
+        if (!user.token) setUser({ ...user, token });
+      } catch (err) {
+        console.error("Failed to join room:", err);
+      }
+    };
+
+    joinRoom();
+  }, [socket, user, spaceId, setUser]);
 
   if (connectionError) {
     return <div>Cannot connect to socket server</div>;
   }
 
-
-  if (loading || loading1) {
-    return <Loader></Loader>
-  }
-
-  if (user?.id != creatorId) {
-    toast.warn("You are not the creator of this space", {
-      position: "top-right",
-    })
-    router.push("/");
-    return null;
+  if (loading) {
+    return <Loader />;
   }
 
   return (
-    <StreamView creatorId={creatorId as string} playVideo={true} spaceId={spaceId} />
-  )
+    <StreamView
+      creatorId={user?.id as string}
+      playVideo={true}
+      spaceId={spaceId}
+    />
+  );
 }
-
 
 
 

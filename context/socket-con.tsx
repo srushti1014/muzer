@@ -54,7 +54,7 @@ export const SocketContextProvider = ({ children }: PropsWithChildren) => {
         setConnectionError(true);
         setLoading(false);
       };
-
+      
       () => {
         ws.close();
       };
