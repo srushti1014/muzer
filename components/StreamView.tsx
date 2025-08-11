@@ -268,7 +268,6 @@ export default function StreamView({
         }));
         // refreshStream();
         setIsEmptyQueueDialogOpen(false);
-        setCurrentVideo(null)
       }
     } catch (error) {
       console.error("Error emptying queue:", error);
