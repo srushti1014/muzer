@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import yts from 'yt-search';
+import * as cheerio from 'cheerio';
 // Stream	A single song.
 // Space	A queue.
 // CurrentStream	Tracks the one Stream that is currently playing in a Space.
