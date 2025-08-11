@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "preinstall": "npx npm-force-resolutions",
     "postinstall": "prisma generate"
+  },
+  "resolutions": {
+    "cheerio": "1.0.0-rc.10"
   },
   "dependencies": {
     "@next/third-parties": "^15.4.4",
@@ -48,6 +52,7 @@
     "@types/ws": "^8.18.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
+    "npm-force-resolutions": "^0.0.10",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
