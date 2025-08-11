@@ -63,11 +63,11 @@ export default function StreamView({
 
   useEffect(() => {
     if (!socket) return;
-    
+
     const handler = (event: MessageEvent) => {
       try {
         const { type, data } = JSON.parse(event.data);
-        if (data.spaceId !== spaceId) return; 
+        if (data.spaceId !== spaceId) return;
 
         if (type === "new-stream" || type === "remove-stream" || type === "vote" || type === "empty-queue" || type === "play-next") {
           console.log("calling.........")
@@ -158,6 +158,14 @@ export default function StreamView({
       // refreshStream();
     } catch (error) {
       console.error("Error adding to queue:", error)
+      let message = "Failed to add video to queue";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+      toast.error(message)
       setSubmitError("Failed to add video to queue")
     } finally {
       setIsSubmitting(false)
@@ -255,8 +263,8 @@ export default function StreamView({
       if (res) {
         toast.success(res.data.message);
         socket?.send(JSON.stringify({
-        type: "empty-queue",
-        data: { spaceId }
+          type: "empty-queue",
+          data: { spaceId }
         }));
         // refreshStream();
         setIsEmptyQueueDialogOpen(false);
@@ -345,6 +353,7 @@ export default function StreamView({
             )}
           </CardContent>
         </Card>
+
         {playVideo && queue.length > 0 && <Button
           disabled={playNextLoader}
           onClick={() => playNext()}
@@ -457,13 +466,12 @@ export default function StreamView({
                           ? "bg-green-400/20"
                           : ""
                           }`}
-
                       >
                         {item.haveUpvoted ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </Button>
 
                       <span className="text-white font-bold text-sm w-5 text-center">{item.upvotes}</span>
-                      {isCreator && (
+                      {playVideo && isCreator && (
                         <button
                           onClick={() => removeSong(item.id)}
                           className="bg-gray-700 hover:bg-gray-600 text-white transition-colors ml-3 flex justify-center items-center rounded-2xl w-7 h-7"
