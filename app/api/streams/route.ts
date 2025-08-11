@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    //check of user is not creator
     if (user.id !== data.creatorId) {
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
       const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
