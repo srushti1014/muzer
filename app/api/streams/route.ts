@@ -3,9 +3,9 @@ import { YT_REGEX } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { auth } from "@/lib/auth";
-// import yts from 'yt-search';
-// import * as cheerio from 'cheerio';
-// console.log('Cheerio loaded:', typeof cheerio);
+import yts from 'yt-search';
+import * as cheerio from 'cheerio';
+console.log('Cheerio loaded:', typeof cheerio);
 
 // Stream	A single song.
 // Space	A queue.
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         }
       );
     }
-    const yts = (await import('yt-search')).default;
+    // const yts = (await import('yt-search')).default;
     const res = await yts(videoId);
     const video = res.all?.[0];
     console.log("result: ", res.all?.[0]);
