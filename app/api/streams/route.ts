@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth";
 
 // Stream	A single song.
 // Space	A queue.
-// CurrentStream	Tracks the one Stream that is currently playing in a Space./
+// CurrentStream	Tracks the one Stream that is currently playing in a Space.
 
 const CreateStreamSchema = z.object({
   creatorId: z.string(), 
