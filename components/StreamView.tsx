@@ -149,6 +149,10 @@ export default function StreamView({
         creatorId: creatorId,
         spaceId: spaceId,
         url: youtubeUrl,
+      },{
+       headers: {
+        "Content-Type": "application/json"
+       }
       })
       socket?.send(JSON.stringify({
         type: "new-stream",
