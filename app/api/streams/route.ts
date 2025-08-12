@@ -22,6 +22,10 @@ const MAX_QUEUE_LEN = 20;
 export async function POST(req: NextRequest) {
   try {
     // console.log("dataaaaaa:", await req.json())
+    console.log("Headers:", req.headers);
+    const body = await req.json();
+    console.log("Body:", body);
+
     const session = await auth();;
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const user = session.user; //The currently logged-in user from session (fan or creator)
 
-    const data = CreateStreamSchema.parse(await req.json());
+    const data = CreateStreamSchema.parse(body);
     const isYt = data.url.match(YT_REGEX);
     const videoId = data.url.match(YT_REGEX)?.[1];
     console.log("videoId :",videoId);
