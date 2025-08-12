@@ -18,9 +18,9 @@ const MAX_QUEUE_LEN = 20;
 export async function POST(req: NextRequest) {
   try {
     // console.log("dataaaaaa:", await req.json())
-    console.log("Headers:", req.headers);
+    // console.log("Headers:", req.headers);
     const body = await req.json();
-    console.log("Body:", body);
+    // console.log("Body:", body);
 
     const session = await auth();
     if (!session?.user?.id) {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`
     );
     const ytData = await ytRes.json();
-    console.log("ytData dta: =========", ytData);
+    // console.log("ytData dta: =========", ytData);
 
     if (!ytData.items || ytData.items.length === 0) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     }
 
     const video = ytData.items[0].snippet;
-    console.log("video dta: ===========>", video);
+    // console.log("video dta: ===========>", video);
 
     const thumbnail =
       video.thumbnails.maxres?.url ||
